@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小花生倒计时 · 田茱萸即将到来</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=LXGW+WenKai:wght@300;400;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #E8A0BF;
+    --rose-deep: #C75B7A;
+    --rose-dark: #A04060;
+    --lavender: #B8A9C9;
+    --lavender-soft: #D4C5E2;
+    --peach: #FFDAB9;
+    --cream: #FFF9F0;
+    --gold: #D4A853;
+    --gold-soft: #F0DCA4;
+    --sage: #A8C5A0;
+    --sage-soft: #D4E8D0;
+    --text: #3D2B1F;
+    --text-mid: #6B5344;
+    --text-light: #9C8B7E;
+    --bg: #FDF6F0;
+    --card-bg: rgba(255,252,248,0.88);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'LXGW WenKai', serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9998;
+  }
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender), var(--gold), var(--rose));
+    background-size: 300% 100%;
+    animation: gradientShift 4s ease infinite;
+    z-index: 10000;
+    transition: width 0.15s ease-out;
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .particles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    opacity: 0;
+    animation: particleFloat linear infinite;
+    filter: blur(0.5px);
+  }
+  @keyframes particleFloat {
+    0% { opacity: 0; transform: translateY(100vh) rotate(0deg) scale(0.8); }
+    8% { opacity: 0.6; }
+    50% { transform: translateY(50vh) rotate(180deg) scale(1); }
+    92% { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(-10vh) rotate(360deg) scale(0.8); }
+  }
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .hero-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 25% 20%, rgba(232,160,191,0.25) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 75% 75%, rgba(184,169,201,0.2) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,218,185,0.15) 0%, transparent 70%);
+    z-index: 1;
+  }
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 1;
+    animation: orbFloat 12s ease-in-out infinite;
+  }
+  .hero-orb:nth-child(1) { width: 400px; height: 400px; background: rgba(232,160,191,0.2); top: -100px; left: -100px; }
+  .hero-orb:nth-child(2) { width: 300px; height: 300px; background: rgba(184,169,201,0.15); bottom: -50px; right: -50px; animation-delay: -4s; }
+  .hero-orb:nth-child(3) { width: 250px; height: 250px; background: rgba(212,168,83,0.1); top: 40%; right: 10%; animation-delay: -8s; }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 15px) scale(0.95); }
+  }
+  .hero-image-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 88%;
+    max-width: 680px;
+    animation: heroEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.3s;
+  }
+  .hero-image-frame {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -20px rgba(199,91,122,0.2), 0 10px 30px -10px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.5);
+  }
+  .hero-image-frame img {
+    width: 100%;
+    display: block;
+    animation: float 8s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-8px) rotate(0.3deg); }
+    75% { transform: translateY(4px) rotate(-0.2deg); }
+  }
+  @keyframes heroEnter {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .hero-text {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    margin-top: 2.5rem;
+    padding: 0 1.5rem;
+    animation: heroEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.6s;
+  }
+  .hero-text h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(2.8rem, 7vw, 4.5rem);
+    color: var(--rose-dark);
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+  }
+  .hero-text h1 .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 0 0.3em;
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.6; }
+  }
+  .hero-text .subtitle {
+    font-family: 'LXGW WenKai', serif;
+    font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+    color: var(--text-light);
+    font-weight: 300;
+    letter-spacing: 4px;
+  }
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+    animation: scrollBounce 2.5s ease-in-out infinite;
+  }
+  .scroll-indicator:hover { opacity: 0.9; }
+  .scroll-indicator svg { width: 28px; height: 28px; fill: none; stroke: var(--rose-deep); stroke-width: 2; stroke-linecap: round; }
+  @keyframes scrollBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+  .section-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+  .section-title h2 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    color: var(--rose-dark);
+    display: inline-block;
+    position: relative;
+  }
+  .section-title h2::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--gold));
+    border-radius: 2px;
+  }
+  .countdown-section {
+    padding: 4rem 1.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(232,160,191,0.08) 0%, transparent 100%);
+  }
+  .countdown-display {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    max-width: 560px;
+    margin: 0 auto 1.8rem;
+  }
+  .countdown-unit {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    padding: 1.4rem 1.6rem;
+    min-width: 100px;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 8px 32px -8px rgba(199,91,122,0.1), 0 2px 8px -2px rgba(0,0,0,0.04);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .countdown-unit:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 48px -8px rgba(199,91,122,0.15), 0 4px 12px -2px rgba(0,0,0,0.06);
+  }
+  .countdown-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--rose-dark);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .countdown-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 0.4rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .due-date-info {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    letter-spacing: 1px;
+  }
+  .due-date-info span { color: var(--rose-deep); font-weight: 700; }
+  .today-section {
+    padding: 4rem 1.5rem;
+    max-width: 920px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .today-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 20px 60px -15px rgba(199,91,122,0.12), 0 4px 16px -4px rgba(0,0,0,0.04);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: cardReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  }
+  @keyframes cardReveal { to { opacity: 1; transform: translateY(0); } }
+  .today-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 80px -15px rgba(199,91,122,0.18), 0 8px 24px -4px rgba(0,0,0,0.06);
+  }
+  .today-card-header {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--lavender) 100%);
+    padding: 1.6rem 2rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .today-card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .today-badge {
+    background: white;
+    color: var(--rose-deep);
+    border-radius: 16px;
+    width: 52px; height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+  }
+  .today-card-header h3 { font-family: 'Ma Shan Zheng', cursive; font-size: 1.4rem; position: relative; z-index: 1; }
+  .today-card-header p { font-size: 0.85rem; opacity: 0.9; margin-top: 0.15rem; font-weight: 300; position: relative; z-index: 1; }
+  .today-card-body { padding: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 640px) { .today-card-body { grid-template-columns: 1fr; } }
+  .today-painting {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px -4px rgba(0,0,0,0.1);
+    position: relative;
+    aspect-ratio: 4/3;
+    background: linear-gradient(135deg, #FCE4EC, #F3E5F5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .today-painting img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .today-painting:hover img { transform: scale(1.05); }
+  .painting-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(61,43,31,0.75));
+    color: white;
+    padding: 2rem 1rem 0.8rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+  .painting-caption strong { display: block; font-family: 'Ma Shan Zheng', cursive; font-size: 1.05rem; margin-bottom: 0.15rem; font-weight: 400; }
+  .today-content { display: flex; flex-direction: column; gap: 1.5rem; }
+  .quote-block {
+    position: relative;
+    padding: 1.4rem 1.6rem;
+    background: linear-gradient(135deg, #FFF5EB, #FFF0F5);
+    border-radius: 16px;
+    border-left: 3px solid var(--gold);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .quote-block::before {
+    content: '\201C';
+    position: absolute;
+    top: -4px; left: 10px;
+    font-size: 3.5rem;
+    color: var(--gold-soft);
+    font-family: 'Playfair Display', serif;
+    line-height: 1;
+  }
+  .quote-text { font-family: 'LXGW WenKai', serif; font-size: 1.05rem; line-height: 1.9; color: var(--text); font-style: italic; }
+  .quote-author { text-align: right; font-size: 0.8rem; color: var(--text-light); margin-top: 0.6rem; font-style: normal; }
+  .knowledge-block {
+    padding: 1.2rem 1.5rem;
+    background: linear-gradient(135deg, var(--sage-soft), #E8F0E6);
+    border-radius: 16px;
+    border-left: 3px solid var(--sage);
+  }
+  .knowledge-label { font-size: 0.75rem; color: #5A8A52; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .knowledge-text { font-size: 0.92rem; line-height: 1.8; color: var(--text-mid); }
+  .timeline-section {
+    padding: 4rem 1.5rem 5rem;
+    max-width: 920px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .timeline-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .timeline-nav button {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    border: 1.5px solid var(--rose);
+    background: transparent;
+    color: var(--rose-deep);
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .timeline-nav button:hover, .timeline-nav button.active {
+    background: var(--rose);
+    color: white;
+    border-color: var(--rose);
+    transform: scale(1.08);
+  }
+  .timeline-nav button.today-btn {
+    background: linear-gradient(135deg, var(--gold), #E8C84A);
+    color: var(--text);
+    border-color: var(--gold);
+    animation: todayPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes todayPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,168,83,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(212,168,83,0); }
+  }
+  .day-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 8px 32px -8px rgba(199,91,122,0.06);
+    margin-bottom: 1.8rem;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s;
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  .day-card.visible { animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .day-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px -8px rgba(199,91,122,0.12); }
+  .day-card.past { opacity: 0.5; transform: none; animation: none; }
+  .day-card.past:hover { opacity: 0.7; transform: translateY(-2px); }
+  .day-card-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(232,160,191,0.15);
+  }
+  .day-card-header .day-num { font-family: 'Ma Shan Zheng', cursive; font-weight: 400; font-size: 1.15rem; color: var(--rose-dark); }
+  .day-card-header .day-date { font-size: 0.8rem; color: var(--text-light); letter-spacing: 1px; }
+  .day-card-body { padding: 1.5rem; display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; }
+  @media (max-width: 640px) { .day-card-body { grid-template-columns: 1fr; } }
+  .day-painting {
+    border-radius: 14px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    box-shadow: 0 4px 16px -4px rgba(0,0,0,0.08);
+    position: relative;
+    background: linear-gradient(135deg, #FCE4EC, #F3E5F5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .day-painting img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  .day-painting:hover img { transform: scale(1.06); }
+  .day-info { display: flex; flex-direction: column; gap: 1rem; }
+  .day-quote {
+    font-family: 'LXGW WenKai', serif;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text);
+    font-style: italic;
+    padding: 1rem 1.2rem;
+    background: linear-gradient(135deg, #FFFAF2, #FFF8F5);
+    border-radius: 12px;
+    border-left: 3px solid var(--gold-soft);
+    position: relative;
+  }
+  .day-quote::before { content: '\201C'; position: absolute; top: -2px; left: 6px; font-size: 2rem; color: var(--gold-soft); font-family: 'Playfair Display', serif; line-height: 1; }
+  .day-quote .author { font-style: normal; font-size: 0.75rem; color: var(--text-light); text-align: right; margin-top: 0.4rem; }
+  .day-knowledge {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--text-mid);
+    padding: 1rem 1.2rem;
+    background: linear-gradient(135deg, var(--sage-soft), #EDF5EB);
+    border-radius: 12px;
+    border-left: 3px solid var(--sage);
+  }
+  .day-knowledge .label { font-size: 0.7rem; color: #5A8A52; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.35rem; }
+  .day-painting-info { font-size: 0.78rem; color: var(--text-light); text-align: center; margin-top: 0.6rem; letter-spacing: 0.5px; }
+  .day-painting-info strong { color: var(--text-mid); font-family: 'Ma Shan Zheng', cursive; font-weight: 400; font-size: 0.9rem; }
+  .footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    z-index: 1;
+    background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(232,160,191,0.08) 0%, transparent 100%);
+  }
+  .footer .heart { font-size: 1.8rem; display: inline-block; animation: heartbeat 1.8s ease-in-out infinite; }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.2); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.12); }
+    56% { transform: scale(1); }
+  }
+  .footer p { color: var(--text-light); margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.8; letter-spacing: 0.5px; }
+  .footer .name { font-family: 'Ma Shan Zheng', cursive; color: var(--rose-dark); font-size: 1.1rem; }
+  .footer .nickname { color: var(--lavender); font-weight: 500; }
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    color: var(--rose-deep);
+    border: 1px solid rgba(232,160,191,0.3);
+    cursor: pointer;
+    box-shadow: 0 4px 20px -4px rgba(199,91,122,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+  }
+  .back-to-top.visible { opacity: 1; transform: translateY(0); }
+  .back-to-top:hover { transform: translateY(-3px); box-shadow: 0 8px 28px -4px rgba(199,91,122,0.2); background: var(--rose); color: white; border-color: var(--rose); }
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loading-icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 3px solid var(--rose);
+    border-top-color: var(--gold);
+    animation: spin 1s linear infinite;
+    margin-bottom: 1.5rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: 'Ma Shan Zheng', cursive; font-size: 1.4rem; color: var(--rose-dark); animation: loadFade 2s ease-in-out infinite; }
+  @keyframes loadFade { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .born-section { display: none; text-align: center; padding: 5rem 2rem; max-width: 600px; margin: 0 auto; }
+  .born-section.show { display: block; }
+  .born-section h2 { font-family: 'Ma Shan Zheng', cursive; font-size: 2.8rem; color: var(--rose-dark); margin-bottom: 1.2rem; }
+  .born-section p { font-size: 1.15rem; color: var(--text-mid); line-height: 2; letter-spacing: 0.5px; }
+  ::selection { background: var(--rose); color: white; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--rose); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--rose-deep); }
+</style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-icon"></div>
+  <div class="loading-text">小花生即将到来...</div>
+</div>
+<div class="progress-bar" id="progressBar"></div>
+<div class="particles" id="particles"></div>
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-image-wrapper">
+    <div class="hero-image-frame">
+      <img class="hero-image" src="assets/hero-peanut.jpg" alt="小花生倒计时" />
+    </div>
+  </div>
+  <div class="hero-text">
+    <h1>田茱萸 <span class="dot"></span> 小花生</h1>
+    <p class="subtitle">我们正在等你 · 每一天都是期待</p>
+  </div>
+  <div class="scroll-indicator" onclick="document.getElementById('countdown').scrollIntoView({behavior:'smooth'})">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+<section class="countdown-section" id="countdown">
+  <div class="section-title"><h2>距离和小花生见面还有</h2></div>
+  <div class="countdown-display">
+    <div class="countdown-unit"><div class="countdown-number" id="cd-days">--</div><div class="countdown-label">天</div></div>
+    <div class="countdown-unit"><div class="countdown-number" id="cd-hours">--</div><div class="countdown-label">时</div></div>
+    <div class="countdown-unit"><div class="countdown-number" id="cd-minutes">--</div><div class="countdown-label">分</div></div>
+    <div class="countdown-unit"><div class="countdown-number" id="cd-seconds">--</div><div class="countdown-label">秒</div></div>
+  </div>
+  <p class="due-date-info">预产期：<span id="dueDateText">2026年6月4日</span></p>
+</section>
+<section class="born-section" id="bornSection">
+  <h2>🎉 小花生来啦！🎉</h2>
+  <p>田茱萸，欢迎来到这个美丽的世界！<br>我们等了好久好久，终于见到你啦！<br>愿你一生被爱，健康快乐地成长 🌸</p>
+</section>
+<section class="today-section" id="todaySection">
+  <div class="section-title"><h2>今日期待</h2></div>
+  <div class="today-card" id="todayCard"></div>
+</section>
+<section class="timeline-section" id="timelineSection">
+  <div class="section-title"><h2>倒计时日历</h2></div>
+  <div class="timeline-nav" id="timelineNav"></div>
+  <div id="timelineCards"></div>
+</section>
+<footer class="footer">
+  <div class="heart">❤️</div>
+  <p>用满满的爱，等待 <span class="name">田茱萸</span> 的到来<br><span class="nickname">小花生</span>，爸爸妈妈哥哥都在等你 🥜</p>
+</footer>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<script>
+const DUE_DATE = new Date('2026-06-04T00:00:00+08:00');
+const dailyData = [
+  { day: 1, date: '5月9日', painting: { title: '星月夜', artist: '梵高', year: '1889' }, quote: '每一个婴儿的出生，都是上天派来的小星星，照亮了整个世界。', author: '佚名', knowledge: '孕37周后胎儿已足月，肺部发育成熟，随时可以安全出生。此时宝宝大约有2.6-3.8公斤重。' },
+  { day: 2, date: '5月10日', painting: { title: '向日葵', artist: '梵高', year: '1888' }, quote: '孩子是上帝赐予我们最好的礼物，每一个都独一无二。', author: '佚名', knowledge: '孕晚期胎儿每天在羊水中练习呼吸动作，为出生后自主呼吸做准备。' },
+  { day: 3, date: '5月11日', painting: { title: '创造亚当', artist: '米开朗基罗', year: '1512' }, quote: '创造一个新生命，是世间最伟大的艺术。', author: '米开朗基罗', knowledge: '新生儿的视觉在出生时还不够成熟，只能看清20-30厘米距离内的物体。' },
+  { day: 4, date: '5月12日', painting: { title: '罗纳河上的星夜', artist: '梵高', year: '1888' }, quote: '世间所有的美好，都值得等待。', author: '佚名', knowledge: '胎儿在子宫里已经能感知光线变化。' },
+  { day: 5, date: '5月13日', painting: { title: '蒙娜丽莎', artist: '达·芬奇', year: '1503' }, quote: '母亲的微笑，是孩子最初的语言。', author: '佚名', knowledge: '胎儿在孕晚期已经建立了睡眠-觉醒周期。' },
+  { day: 6, date: '5月14日', painting: { title: '神奈川冲浪里', artist: '葛饰北斋', year: '1831' }, quote: '生命如海浪，每一次涌动都孕育着新的力量。', author: '佚名', knowledge: '新生儿的味蕾在孕期13-15周就已经形成，天生偏好甜味。' },
+  { day: 7, date: '5月15日', painting: { title: '日出·印象', artist: '莫奈', year: '1872' }, quote: '每一个清晨都是新的开始，就像每一个新生命都是新的希望。', author: '佚名', knowledge: '胎儿在子宫里能听到妈妈的心跳声，出生后能让宝宝感到安全。' },
+  { day: 8, date: '5月16日', painting: { title: '九级浪', artist: '艾瓦佐夫斯基', year: '1850' }, quote: '无论风雨多大，爱是最坚固的港湾。', author: '佚名', knowledge: '孕晚期羊水量开始逐渐减少，这是正常的生理过程。' },
+  { day: 9, date: '5月17日', painting: { title: '吻', artist: '克里姆特', year: '1908' }, quote: '爱是世界上最温柔的力量，它让平凡的日子闪闪发光。', author: '佚名', knowledge: '胎儿在孕晚期每天吞咽约500-700ml羊水，帮助消化系统发育。' },
+  { day: 10, date: '5月18日', painting: { title: '雾海上的漫游者', artist: '弗里德里希', year: '1818' }, quote: '前方是未知的旅程，但每一步都充满惊喜。', author: '佚名', knowledge: '新生儿出生时携带来自母体的免疫抗体，能帮助宝宝抵抗疾病。' },
+  { day: 11, date: '5月19日', painting: { title: '大碗岛的星期天下午', artist: '修拉', year: '1886' }, quote: '最美好的时光，是和家人在一起的每一个平凡日子。', author: '佚名', knowledge: '孕37-40周，胎儿的皮下脂肪持续积累，帮助宝宝维持体温。' },
+  { day: 12, date: '5月20日', painting: { title: '富岳三十六景', artist: '葛饰北斋', year: '1832' }, quote: '小花生，你就像一朵即将绽放的花，我们已准备好迎接你的芬芳。', author: '佚名', knowledge: '胎儿的大脑在孕晚期快速发育，每分钟约产生25万个新神经元。' },
+  { day: 13, date: '5月21日', painting: { title: '星夜', artist: '卢梭', year: '1910' }, quote: '你还没来，却已经让整个世界变得不同。', author: '佚名', knowledge: '新生儿的嗅觉在出生后立即发挥作用，能辨认妈妈。' },
+  { day: 14, date: '5月22日', painting: { title: '维纳斯的诞生', artist: '波提切利', year: '1485' }, quote: '每一个新生命的诞生，都是人间最美的奇迹。', author: '佚名', knowledge: '孕38周时，大部分胎儿已经"入盆"，为分娩做好准备。' },
+  { day: 15, date: '5月23日', painting: { title: '睡莲', artist: '莫奈', year: '1906' }, quote: '等待的日子像水面上的涟漪，一圈一圈荡漾着爱意。', author: '佚名', knowledge: '新生儿出生时体重在2.5-4公斤之间为正常范围。' },
+  { day: 16, date: '5月24日', painting: { title: '呐喊', artist: '蒙克', year: '1893' }, quote: '宝宝的第一声啼哭，是人间最动听的乐章。', author: '佚名', knowledge: '出生后第一次呼吸时，肺部像被吹起的气球一样展开。' },
+  { day: 17, date: '5月25日', painting: { title: '收割者', artist: '勃鲁盖尔', year: '1565' }, quote: '播种爱，收获爱。小花生，你是最珍贵的果实。', author: '佚名', knowledge: '新生儿的脐带残留部分通常在出生后5-15天自然脱落。' },
+  { day: 18, date: '5月26日', painting: { title: '芭蕾排练', artist: '德加', year: '1874' }, quote: '生命是一场优雅的舞蹈，而你是最美的舞者。', author: '佚名', knowledge: '胎儿在子宫里就已经会"跳舞"了！每天大约有30-50次明显的胎动。' },
+  { day: 19, date: '5月27日', painting: { title: '盛开的杏花', artist: '梵高', year: '1890' }, quote: '杏花盛开，如同你即将绽放的生命，充满无限可能。', author: '佚名', knowledge: '新生儿的头部约占身长的1/4，大脑发育到成人脑重的25%。' },
+  { day: 20, date: '5月28日', painting: { title: '浪子回头', artist: '伦勃朗', year: '1669' }, quote: '家是永远的港湾，无论走多远，爱都在这里等你。', author: '佚名', knowledge: '新生儿的皮肤在出生后可能会出现脱皮现象，这是正常的。' },
+  { day: 21, date: '5月29日', painting: { title: '玛丽莲·梦露', artist: '安迪·沃霍尔', year: '1962' }, quote: '每个孩子都是独一无二的艺术品，值得被全世界珍爱。', author: '佚名', knowledge: '新生儿的握持反射非常有力，能紧紧握住手指。' },
+  { day: 22, date: '5月30日', painting: { title: '鸢尾花', artist: '梵高', year: '1889' }, quote: '每一朵花都有自己的花期，小花生也会在最完美的时刻到来。', author: '佚名', knowledge: '孕晚期胎儿会建立自己的生物钟，夜间更活跃。' },
+  { day: 23, date: '5月31日', painting: { title: '太阳', artist: '蒙克', year: '1911' }, quote: '你就像初升的太阳，温暖而明亮，照亮我们的整个世界。', author: '佚名', knowledge: '新生儿出生后需要接种乙肝疫苗，预防乙型肝炎。' },
+  { day: 24, date: '6月1日', painting: { title: '两姐妹', artist: '雷诺阿', year: '1881' }, quote: '六一快乐！未来的每一个儿童节，我们都会陪你一起过。', author: '佚名', knowledge: '新生儿出生后约72小时内会进行新生儿筛查。' },
+  { day: 25, date: '6月2日', painting: { title: '奥菲利亚', artist: '米莱斯', year: '1852' }, quote: '世间万物都在等待你的到来，连花朵都为你准备好了颜色。', author: '佚名', knowledge: '胎便通常在出生后24-48小时内排出。' },
+  { day: 26, date: '6月3日', painting: { title: '大碗岛的星期天', artist: '修拉', year: '1886' }, quote: '倒计时的每一秒，都是爱的积累。', author: '佚名', knowledge: '分娩前的"见红"是即将分娩的信号之一。' },
+  { day: 27, date: '6月4日', painting: { title: '雨天的巴黎街道', artist: '卡耶博特', year: '1877' }, quote: '风雨过后，最美的风景在前方。小花生，我们快见面了！', author: '佚名', knowledge: '初产妇的分娩过程通常分为三个阶段。' },
+  { day: 28, date: '6月5日', painting: { title: '印象·日出', artist: '莫奈', year: '1872' }, quote: '明天，你就要来了。我们准备好了所有的爱，只等你到来。', author: '佚名', knowledge: '临产前妈妈可能会感到"筑巢本能"，为迎接宝宝做准备。' }
+];
+function updateCountdown() {
+  const now = new Date();
+  const diff = DUE_DATE - now;
+  if (diff <= 0) {
+    document.getElementById('cd-days').textContent = '0';
+    document.getElementById('cd-hours').textContent = '0';
+    document.getElementById('cd-minutes').textContent = '0';
+    document.getElementById('cd-seconds').textContent = '0';
+    document.getElementById('bornSection').classList.add('show');
+    return;
+  }
+  document.getElementById('cd-days').textContent = Math.floor(diff / 86400000);
+  document.getElementById('cd-hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+  document.getElementById('cd-minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+  document.getElementById('cd-seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+function getCurrentDayIndex() {
+  const diff = DUE_DATE - new Date();
+  const daysLeft = Math.ceil(diff / 86400000);
+  if (daysLeft <= 0) return dailyData.length - 1;
+  if (daysLeft > 26) return 0;
+  return 26 - daysLeft;
+}
+function renderToday() {
+  const idx = getCurrentDayIndex();
+  const d = dailyData[idx];
+  document.getElementById('todayCard').innerHTML = `
+    <div class="today-card-header">
+      <div class="today-badge">${d.day}</div>
+      <div><h3>倒计时第 ${d.day} 天 · ${d.date}</h3><p>距离和小花生见面还有 ${26 - d.day + 1} 天</p></div>
+    </div>
+    <div class="today-card-body">
+      <div class="today-painting"><div style="font-family:Ma Shan Zheng,cursive;font-size:1.2rem;color:var(--rose-dark);">${d.painting.title}<br><small style="font-size:0.8rem;color:var(--text-light);font-family:LXGW WenKai,serif;">${d.painting.artist}</small></div></div>
+      <div class="today-content">
+        <div class="quote-block"><div class="quote-text">${d.quote}</div><div class="quote-author">—— ${d.author}</div></div>
+        <div class="knowledge-block"><div class="knowledge-label">🌱 今日知识点</div><div class="knowledge-text">${d.knowledge}</div></div>
+      </div>
+    </div>`;
+}
+function renderTimeline() {
+  const todayIdx = getCurrentDayIndex();
+  document.getElementById('timelineNav').innerHTML = dailyData.map((d, i) => `<button class="${i === todayIdx ? 'today-btn' : ''}" onclick="scrollToDay(${i})">${d.day}</button>`).join('');
+  document.getElementById('timelineCards').innerHTML = dailyData.map((d, i) => {
+    const isToday = i === todayIdx;
+    const isPast = i < todayIdx;
+    return `<div class="day-card ${isPast ? 'past' : ''}" id="day-${i}">
+      <div class="day-card-header"><span class="day-num">${isToday ? '🌸 今天 · ' : ''}第 ${d.day} 天</span><span class="day-date">${d.date}${isPast ? ' · 已过去' : ''}${isToday ? ' · 进行中' : ''}</span></div>
+      <div class="day-card-body">
+        <div><div class="day-painting"><div style="font-family:Ma Shan Zheng,cursive;font-size:1rem;color:var(--rose-dark);text-align:center;">${d.painting.title}<br><small style="font-size:0.75rem;color:var(--text-light);font-family:LXGW WenKai,serif;">${d.painting.artist} · ${d.painting.year}</small></div></div></div>
+        <div class="day-info"><div class="day-quote">"${d.quote}"<div class="author">—— ${d.author}</div></div><div class="day-knowledge"><div class="label">🌱 知识点</div>${d.knowledge}</div></div>
+      </div></div>`;
+  }).join('');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.day-card:not(.past)').forEach(card => observer.observe(card));
+}
+function scrollToDay(idx) {
+  const el = document.getElementById(`day-${idx}`);
+  if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.boxShadow = '0 0 0 2px var(--rose)'; setTimeout(() => { el.style.boxShadow = ''; }, 2500); }
+}
+function createParticles() {
+  const container = document.getElementById('particles');
+  const symbols = ['🌸', '✨', '🥜', '💫', '🌿', '⭐', '🌷', '🤍'];
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    p.style.left = Math.random() * 100 + '%';
+    p.style.fontSize = (Math.random() * 14 + 10) + 'px';
+    p.style.animationDuration = (Math.random() * 18 + 12) + 's';
+    p.style.animationDelay = (Math.random() * 18) + 's';
+    container.appendChild(p);
+  }
+}
+function updateProgress() {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('progressBar').style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
+}
+function updateBackToTop() { document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400); }
+window.addEventListener('scroll', () => { updateProgress(); updateBackToTop(); }, { passive: true });
+window.addEventListener('load', () => {
+  renderToday();
+  renderTimeline();
+  createParticles();
+  setTimeout(() => scrollToDay(getCurrentDayIndex()), 1200);
+  setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 600);
+});
+</script>
+</body>
+</html>
